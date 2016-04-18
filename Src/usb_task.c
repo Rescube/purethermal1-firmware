@@ -201,9 +201,13 @@ static void scale_image_8bit(yuv422_buffer_t *buffer, uint16_t min, uint16_t max
 		{
 #ifdef Y16
 			uint16_t val = buffer->lines[j].data.image_data[i];
-			val -= min;
-			val = (( val * 255) / (max-min));
-
+      if(val < min) val = 0;
+			else if(val > max) val = 255;
+      else
+      {
+        val -= min;
+			  val = (( val * 255) / (max-min));
+      }
 			buffer->lines[j].data.image_data[i] = val;
 #else
 			uint8_t val = buffer->data[j][i].y;
@@ -256,7 +260,8 @@ PT_THREAD( usb_task(struct pt *pt))
 		default:
 			// do our hoky linear agc for 8-bit types
 			get_min_max(last_buffer, &current_min, &current_max);
-			scale_image_8bit(last_buffer, current_min, current_max);
+			//scale_image_8bit(last_buffer, current_min, current_max);
+      scale_image_8bit(last_buffer, 8000, 8500);
 			break;
 		}
 #endif
